@@ -133,7 +133,7 @@ public class PopupMenuEditorActionGroupUtil {
             return true;
         }
         // valid chinese and english character length
-        return DocumentUtil.getChineseCharCount(content + prompt) / 2 + DocumentUtil.getEnglishCharCount(content + prompt) / 4 > DefaultConst.TOKEN_MAX_LENGTH;
+        return DocumentUtil.experienceEstimationTokens(content + prompt) > DefaultConst.TOKEN_MAX_LENGTH;
     }
 
 }

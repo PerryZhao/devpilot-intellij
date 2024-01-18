@@ -104,4 +104,8 @@ public class DocumentUtil {
         return englishCount;
     }
 
+    public static int experienceEstimationTokens(String text) {
+        return getChineseCharCount(text) / 2 + getEnglishCharCount(text) / 4;
+    }
+
 }
