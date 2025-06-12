@@ -353,6 +353,7 @@ public class BinaryManager {
     }
 
     public Pair<Integer, Long> retrieveAlivePort() {
+//        return new Pair<>(3000, 0L);
         File homeDir = getHomeDir();
         if (homeDir != null) {
             File infoFile = new File(homeDir, getIdeInfoPath());

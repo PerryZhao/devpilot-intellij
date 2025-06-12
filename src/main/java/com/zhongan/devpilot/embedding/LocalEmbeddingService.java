@@ -62,14 +62,14 @@ public class LocalEmbeddingService {
      * Starts thread processing interval 15 minutes
      */
     public static void start(Project project) {
-        scheduler.scheduleWithFixedDelay(() -> {
-            var enabled = LocalRagSettingsState.getInstance().getEnable();
-
-            // only the setting enabled will process the project index
-            if (enabled) {
-                wrapIndexTask(project, LocalEmbeddingService::indexProject);
-            }
-        }, 15L, 15L, TimeUnit.MINUTES);
+//        scheduler.scheduleWithFixedDelay(() -> {
+//            var enabled = LocalRagSettingsState.getInstance().getEnable();
+//
+//            // only the setting enabled will process the project index
+//            if (enabled) {
+//                wrapIndexTask(project, LocalEmbeddingService::indexProject);
+//            }
+//        }, 15L, 15L, TimeUnit.MINUTES);
     }
 
     public static void immediateStart(Project project) {

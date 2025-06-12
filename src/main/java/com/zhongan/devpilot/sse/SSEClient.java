@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.zhongan.devpilot.actions.notifications.DevPilotNotification;
+import com.zhongan.devpilot.agents.AgentsRunner;
 import com.zhongan.devpilot.agents.BinaryManager;
 import com.zhongan.devpilot.mcp.McpConfigurationHandler;
 import com.zhongan.devpilot.session.ChatSessionManagerService;
@@ -87,7 +88,7 @@ public class SSEClient {
         if (project == null || project.isDisposed()) {
             return;
         }
-        
+
         if (connectionThread != null && connectionThread.isAlive()) {
             return;
         }
@@ -96,6 +97,36 @@ public class SSEClient {
             while (retryCount < MAX_RETRY_COUNT && !Thread.currentThread().isInterrupted()) {
                 try {
                     Pair<Integer, Long> portPId = BinaryManager.INSTANCE.retrieveAlivePort();
+                    if (portPId == null || portPId.first == null) {
+                        LOG.info("Agent 未运行或端口信息不可用，尝试重新启动 Agent");
+                        try {
+                            boolean success = ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                                try {
+                                    return com.zhongan.devpilot.agents.AgentsRunner.INSTANCE.run(true);
+                                } catch (Exception e) {
+                                    LOG.warn("重启 Agent 失败", e);
+                                    return false;
+                                }
+                            }).get();
+
+                            if (success) {
+                                LOG.info("Agent 重启成功，重新尝试连接");
+                                // 短暂延迟，确保 Agent 完全启动
+                                Thread.sleep(2000);
+                                portPId = BinaryManager.INSTANCE.retrieveAlivePort();
+                            } else {
+                                LOG.warn("Agent 重启失败，将在下次重试时再次尝试");
+                                connecting = false;
+                                Thread.sleep(currentRetryInterval);
+                                continue;
+                            }
+                        } catch (Exception e) {
+                            LOG.warn("尝试重启 Agent 过程中发生异常", e);
+                        }
+                    }
+
+
+
                     if (portPId != null && portPId.first != null) {
                         if (currentPort == null) {
                             currentPort = portPId.first;
@@ -145,6 +176,7 @@ public class SSEClient {
                 } catch (Exception e) {
                     LOG.warn("Error connecting to SSE server, retry count: " + retryCount, e);
                     retryCount++;
+                    connecting = false;
                     try {
                         Thread.sleep(currentRetryInterval);
                         currentRetryInterval = Math.min(currentRetryInterval * 2, MAX_RETRY_INTERVAL);
@@ -208,7 +240,7 @@ public class SSEClient {
         if (connectionThread != null && connectionThread.isAlive()) {
             connectionThread.interrupt();
         }
-        
+
         try {
             Pair<Integer, Long> portPId = BinaryManager.INSTANCE.retrieveAlivePort();
             if (null != portPId) {

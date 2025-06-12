@@ -3,13 +3,17 @@ package com.zhongan.devpilot.agents;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.twelvemonkeys.util.CollectionUtil;
 import com.zhongan.devpilot.mcp.McpConfigurationHandler;
 import com.zhongan.devpilot.util.ProcessUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
@@ -80,8 +86,31 @@ public class AgentsRunner {
                 env.put("PATH", pathVariableValue);
                 LOG.info("Setting PATH env to pathVariableValue: " + pathVariableValue);
             }
+            LOG.warn("++++++++++++++++++++++++++++++++++++++++++++++++");
+            LOG.warn(commands.stream().collect(Collectors.joining()));
+            LOG.warn("++++++++++++++++++++++++++++++++++++++++++++++++");
 
             Process process = builder.start();
+
+            Thread readerThread = new Thread(() -> {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                try {
+                    while ((line = reader.readLine()) != null) {
+                        LOG.warn("--------------------------------------");
+                        LOG.warn(line);
+                        LOG.warn("--------------------------------------");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            readerThread.start();
+
+            boolean started = waitForPortAvailable(port, 30, TimeUnit.SECONDS);
+
+            LOG.warn("-----------------xyz---------------------" + started);
+
             boolean aliveFlag = process.isAlive();
             if (aliveFlag) {
                 long pid = NumberUtils.LONG_ZERO;
@@ -125,6 +154,28 @@ public class AgentsRunner {
                 LOG.warn(String.format("Failed to write info file: %s.", homeDir.getName()), e);
             }
         }
+    }
+
+    private static boolean waitForPortAvailable(int port, long timeout, TimeUnit timeUnit) {
+        long startTime = System.currentTimeMillis();
+        long timeoutMillis = timeUnit.toMillis(timeout);
+
+        while (System.currentTimeMillis() - startTime < timeoutMillis) {
+            try (Socket socket = new Socket("localhost", port)) {
+                // 如果连接成功，说明端口已可用
+                return true;
+            } catch (IOException e) {
+                // 端口不可用，稍等片刻后重试
+                try {
+                    Thread.sleep(500); // 每次等待500毫秒
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+
+        return false; // 超时仍未启动成功
     }
 
     protected List<String> createCommand(@NotNull String binaryPath, int port) {
