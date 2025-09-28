@@ -1,6 +1,7 @@
 package com.zhongan.devpilot.actions.toolbar;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.zhongan.devpilot.DevPilotIcons;
@@ -16,6 +17,11 @@ public class ToolbarFeedbackAction extends AnAction {
         super(DevPilotMessageBundle.get("devpilot.toolbarFeedbackAction.text"),
                 DevPilotMessageBundle.get("devpilot.toolbarFeedbackAction.text"),
                 DevPilotIcons.FEEDBACK);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

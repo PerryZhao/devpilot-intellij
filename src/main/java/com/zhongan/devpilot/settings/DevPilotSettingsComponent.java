@@ -7,6 +7,8 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UI;
+import com.zhongan.devpilot.cli.claudecode.ClaudeTerminalService;
+import com.zhongan.devpilot.settings.state.AIGatewaySettingsState;
 import com.zhongan.devpilot.settings.state.AvailabilityCheck;
 import com.zhongan.devpilot.settings.state.ChatShortcutSettingState;
 import com.zhongan.devpilot.settings.state.CompletionSettingsState;
@@ -48,6 +50,13 @@ public class DevPilotSettingsComponent {
 
     private final JBTextField localStorageField;
 
+    // CLI related components
+    private final JBRadioButton autoAuthenticationRadio;
+
+    private final JBRadioButton syncMcpServerConfigRadio;
+
+    private final ClaudeTerminalService claudeTerminalService;
+
     public DevPilotSettingsComponent(DevPilotSettingsConfigurable devPilotSettingsConfigurable, DevPilotLlmSettingsState settings) {
         fullNameField = new JBTextField(settings.getFullName(), 20);
 
@@ -72,7 +81,17 @@ public class DevPilotSettingsComponent {
         var personalAdvancedSettings = PersonalAdvancedSettingsState.getInstance();
         localStorageField = new JBTextField(personalAdvancedSettings.getLocalStorage(), 20);
 
-        mainPanel = FormBuilder.createFormBuilder()
+        // Initialize CLI related components
+        claudeTerminalService = ClaudeTerminalService.INSTANCE;
+        var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+        autoAuthenticationRadio = new JBRadioButton(
+                DevPilotMessageBundle.get("devpilot.settings.cli.auto-authentication"),
+                aiGatewaySettings.isAutoAuthentication());
+        syncMcpServerConfigRadio = new JBRadioButton(
+                DevPilotMessageBundle.get("devpilot.settings.cli.sync-mcp-configuration"),
+                aiGatewaySettings.isSyncMcpServerConfig());
+
+        FormBuilder formBuilder = FormBuilder.createFormBuilder()
                 .addComponent(UI.PanelFactory.panel(fullNameField)
                         .withLabel(DevPilotMessageBundle.get("devpilot.setting.displayNameFieldLabel"))
                         .resizeX(false)
@@ -95,7 +114,17 @@ public class DevPilotSettingsComponent {
                 .addVerticalGap(8)
                 .addComponent(new TitledSeparator(
                         DevPilotMessageBundle.get("devpilot.settings.service.status.check.title")))
-                .addComponent(statusCheckRadio)
+                .addComponent(statusCheckRadio);
+
+        // Add CLI settings only if CLI is available
+        if (claudeTerminalService.isCliAvailable()) {
+            formBuilder.addVerticalGap(8)
+                    .addComponent(new TitledSeparator(DevPilotMessageBundle.get("devpilot.settings.cli.settings")))
+                    .addComponent(autoAuthenticationRadio)
+                    .addComponent(syncMcpServerConfigRadio);
+        }
+
+        mainPanel = formBuilder
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }
@@ -242,5 +271,30 @@ public class DevPilotSettingsComponent {
 
     public void setLocalStoragePath(String text) {
         localStorageField.setText(text);
+    }
+
+    // CLI related getters and setters
+    public boolean getAutoAuthentication() {
+        return autoAuthenticationRadio != null && autoAuthenticationRadio.isSelected();
+    }
+
+    public boolean getSyncMcpServerConfig() {
+        return syncMcpServerConfigRadio != null && syncMcpServerConfigRadio.isSelected();
+    }
+
+    public void setAutoAuthentication(boolean selected) {
+        if (autoAuthenticationRadio != null) {
+            autoAuthenticationRadio.setSelected(selected);
+        }
+    }
+
+    public void setSyncMcpServerConfig(boolean selected) {
+        if (syncMcpServerConfigRadio != null) {
+            syncMcpServerConfigRadio.setSelected(selected);
+        }
+    }
+
+    public boolean isCliAvailable() {
+        return claudeTerminalService.isCliAvailable();
     }
 }

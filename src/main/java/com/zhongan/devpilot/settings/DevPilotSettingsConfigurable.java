@@ -8,6 +8,7 @@ import com.intellij.openapi.util.NlsContexts;
 import com.zhongan.devpilot.actions.editor.popupmenu.PopupMenuEditorActionGroupUtil;
 import com.zhongan.devpilot.agents.AgentsRunner;
 import com.zhongan.devpilot.agents.BinaryManager;
+import com.zhongan.devpilot.settings.state.AIGatewaySettingsState;
 import com.zhongan.devpilot.settings.state.AvailabilityCheck;
 import com.zhongan.devpilot.settings.state.ChatShortcutSettingState;
 import com.zhongan.devpilot.settings.state.CompletionSettingsState;
@@ -60,6 +61,14 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
         Boolean enable = AvailabilityCheck.getInstance().getEnable();
         Boolean localRagEnabled = LocalRagSettingsState.getInstance().getEnable();
 
+        // Check CLI settings if CLI is available
+        var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+        boolean cliSettingsModified = false;
+        if (settingsComponent.isCliAvailable()) {
+            cliSettingsModified = settingsComponent.getAutoAuthentication() != aiGatewaySettings.isAutoAuthentication()
+                    || settingsComponent.getSyncMcpServerConfig() != aiGatewaySettings.isSyncMcpServerConfig();
+        }
+
         return !settingsComponent.getFullName().equals(settings.getFullName())
                 || !languageIndex.equals(languageSettings.getLanguageIndex())
                 || !logLanguageIndex.equals(languageSettings.getGitLogLanguageIndex())
@@ -67,7 +76,8 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
                 || !settingsComponent.getCompletionEnabled() == (completionEnable)
                 || !settingsComponent.getStatusCheckEnabled() == (enable)
                 || !settingsComponent.getLocalRagEnabled() == (localRagEnabled)
-                || !settingsComponent.getLocalStoragePath().equals(personalAdvancedSettings.getLocalStorage());
+                || !settingsComponent.getLocalStoragePath().equals(personalAdvancedSettings.getLocalStorage())
+                || cliSettingsModified;
     }
 
     private String verifyLocalStorage(String path) {
@@ -151,6 +161,13 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
 //        if (!pastEnable && localRagSettings.getEnable()) {
 //            LocalEmbeddingService.immediateStartCurrentProject();
 //        }
+
+        // Apply CLI settings if CLI is available
+        if (settingsComponent.isCliAvailable()) {
+            var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+            aiGatewaySettings.setAutoAuthentication(settingsComponent.getAutoAuthentication());
+            aiGatewaySettings.setSyncMcpServerConfig(settingsComponent.getSyncMcpServerConfig());
+        }
     }
 
     @Override
@@ -177,6 +194,13 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
 
         LocalRagSettingsState localRagSettings = LocalRagSettingsState.getInstance();
         settingsComponent.setLocalRagRadioEnabled(localRagSettings.getEnable());
+
+        // Reset CLI settings if CLI is available
+        if (settingsComponent.isCliAvailable()) {
+            var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+            settingsComponent.setAutoAuthentication(aiGatewaySettings.isAutoAuthentication());
+            settingsComponent.setSyncMcpServerConfig(aiGatewaySettings.isSyncMcpServerConfig());
+        }
     }
 
     @Override

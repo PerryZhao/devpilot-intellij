@@ -32,6 +32,11 @@ public class AIGatewaySettingsState implements PersistentStateComponent<AIGatewa
 
     private String tiSsoUsername;
 
+    // CLI related settings
+    private boolean autoAuthentication = true;
+
+    private boolean syncMcpServerConfig = true;
+
     public static AIGatewaySettingsState getInstance() {
         return ApplicationManager.getApplication().getService(AIGatewaySettingsState.class);
     }
@@ -98,6 +103,22 @@ public class AIGatewaySettingsState implements PersistentStateComponent<AIGatewa
 
     public void setTiSsoUsername(String tiSsoUsername) {
         this.tiSsoUsername = tiSsoUsername;
+    }
+
+    public boolean isAutoAuthentication() {
+        return autoAuthentication;
+    }
+
+    public void setAutoAuthentication(boolean autoAuthentication) {
+        this.autoAuthentication = autoAuthentication;
+    }
+
+    public boolean isSyncMcpServerConfig() {
+        return syncMcpServerConfig;
+    }
+
+    public void setSyncMcpServerConfig(boolean syncMcpServerConfig) {
+        this.syncMcpServerConfig = syncMcpServerConfig;
     }
 
     @Override

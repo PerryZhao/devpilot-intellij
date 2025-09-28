@@ -1,6 +1,7 @@
 package com.zhongan.devpilot.actions.toolbar;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -25,6 +26,11 @@ public class ToolbarMcpConfigurationAction extends AnAction {
         super(DevPilotMessageBundle.get("devpilot.toolbarMCPConfigurationAction.text"),
                 DevPilotMessageBundle.get("devpilot.toolbarMCPConfigurationAction.text"),
                 AllIcons.Vcs.Changelist);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

@@ -1,26 +1,33 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.12.0"
+    id("org.jetbrains.intellij.platform") version "2.6.0"
     id("checkstyle")
 }
 
 group = "com.zhongan"
-version = "3.0.2"
+version = "3.1.0"
 
 repositories {
     mavenCentral()
-}
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set("2022.1.4")
-    type.set("IC") // Target IDE Platform
-
-    plugins.set(listOf("com.intellij.java", "org.jetbrains.idea.maven", "Git4Idea"))
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity("2022.3")
+
+        bundledPlugin("com.intellij.java")
+        bundledPlugin("org.jetbrains.idea.maven")
+        bundledPlugin("Git4Idea")
+        bundledPlugin("org.jetbrains.plugins.terminal")
+        testFramework(TestFrameworkType.Platform)
+    }
+
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -35,18 +42,18 @@ dependencies {
     implementation("org.apache.maven.shared:maven-shared-utils:3.4.2")
     compileOnly("com.puppycrawl.tools:checkstyle:10.9.1")
     testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation(libs.junit)
 }
 
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
         options.encoding = "UTF-8"
     }
 
     patchPluginXml {
-        sinceBuild.set("212")
+        sinceBuild.set("223")
         untilBuild.set("252.*")
 
         pluginDescription.set(provider { file("description.html").readText() })

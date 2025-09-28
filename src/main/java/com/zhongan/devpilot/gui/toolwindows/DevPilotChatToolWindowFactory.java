@@ -5,11 +5,15 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.zhongan.devpilot.actions.toolbar.ToolbarClaudeCodeAction;
 import com.zhongan.devpilot.actions.toolbar.ToolbarFeedbackAction;
 import com.zhongan.devpilot.actions.toolbar.ToolbarHistorySessionAction;
 import com.zhongan.devpilot.actions.toolbar.ToolbarMcpConfigurationAction;
 import com.zhongan.devpilot.actions.toolbar.ToolbarNewSessionAction;
+import com.zhongan.devpilot.actions.toolbar.ToolbarReloadWebViewAction;
 import com.zhongan.devpilot.actions.toolbar.ToolbarUserProfileAction;
+import com.zhongan.devpilot.cli.CliService;
+import com.zhongan.devpilot.cli.claudecode.ClaudeTerminalService;
 import com.zhongan.devpilot.gui.toolwindows.chat.DevPilotChatToolWindowService;
 
 import java.awt.BorderLayout;
@@ -35,7 +39,13 @@ public class DevPilotChatToolWindowFactory implements ToolWindowFactory {
             webPanel.add(devPilotChatToolWindow.getDevPilotChatToolWindowPanel());
             Content content = contentFactory.createContent(webPanel, "", false);
             toolWindow.getContentManager().addContent(content);
-            toolWindow.setTitleActions(List.of(new ToolbarMcpConfigurationAction(), new ToolbarNewSessionAction(), new ToolbarHistorySessionAction(), new ToolbarFeedbackAction(), new ToolbarUserProfileAction()));
+
+            CliService cliService = ClaudeTerminalService.INSTANCE;
+            if (cliService.isCliAvailable()) {
+                toolWindow.setTitleActions(List.of(new ToolbarClaudeCodeAction(), new ToolbarReloadWebViewAction(), new ToolbarMcpConfigurationAction(), new ToolbarNewSessionAction(), new ToolbarHistorySessionAction(), new ToolbarFeedbackAction(), new ToolbarUserProfileAction()));
+            } else {
+                toolWindow.setTitleActions(List.of(new ToolbarReloadWebViewAction(), new ToolbarMcpConfigurationAction(), new ToolbarNewSessionAction(), new ToolbarHistorySessionAction(), new ToolbarFeedbackAction(), new ToolbarUserProfileAction()));
+            }
         }
     }
 

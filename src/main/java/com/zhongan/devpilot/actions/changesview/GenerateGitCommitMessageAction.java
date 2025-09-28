@@ -1,5 +1,6 @@
 package com.zhongan.devpilot.actions.changesview;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -54,14 +55,9 @@ public class GenerateGitCommitMessageAction extends AnAction {
     public GenerateGitCommitMessageAction() {
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public Object getActionUpdateThread() {
-        try {
-            Class actionUpdateThreadClass = Class.forName("com.intellij.openapi.actionSystem.ActionUpdateThread");
-            return Enum.valueOf(actionUpdateThreadClass, "EDT");
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

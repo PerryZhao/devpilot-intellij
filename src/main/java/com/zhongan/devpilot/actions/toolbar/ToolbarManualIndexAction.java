@@ -1,5 +1,6 @@
 package com.zhongan.devpilot.actions.toolbar;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.zhongan.devpilot.DevPilotIcons;
@@ -16,6 +17,11 @@ public class ToolbarManualIndexAction extends AnAction {
         super(DevPilotMessageBundle.get("devpilot.toolbarManualIndexAction.text"),
                 DevPilotMessageBundle.get("devpilot.toolbarManualIndexAction.text"),
                 DevPilotIcons.MANUAL_INDEX);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import static com.zhongan.devpilot.util.EventUtil.sendEventRequest;
 
@@ -200,6 +201,17 @@ public class ChatSessionManager {
 
     public ChatSession getCurrentSession() {
         return currentSession;
+    }
+
+    public int getCurrentChatMode() {
+        int currentChatMode = NumberUtils.INTEGER_ZERO;
+        if (null != currentSession) {
+            currentChatMode = currentSession.getChatMode();
+        }
+        if (NumberUtils.INTEGER_ZERO == currentChatMode) {
+            currentChatMode = DefaultConst.AGENT_CHAT_TYPE;
+        }
+        return currentChatMode;
     }
 
     private ChatSession getLastModifiedSession() {

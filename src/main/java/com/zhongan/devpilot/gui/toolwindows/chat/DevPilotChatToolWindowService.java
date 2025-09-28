@@ -921,6 +921,7 @@ public final class DevPilotChatToolWindowService {
         javaCallModel.setPayload(messageList);
 
         callWebView(javaCallModel);
+        changeChatMode(sessionManager.getCurrentChatMode());
     }
 
     public void renderHistorySession() {
@@ -960,6 +961,14 @@ public final class DevPilotChatToolWindowService {
         JavaCallModel javaCallModel = new JavaCallModel();
         javaCallModel.setCommand("PresentCodeEmbeddedState");
         javaCallModel.setPayload(new EmbeddedModel(isEmbedded, repoName));
+
+        callWebView(javaCallModel);
+    }
+
+    public void changeChatMode(int chatMode) {
+        JavaCallModel javaCallModel = new JavaCallModel();
+        javaCallModel.setCommand("ChangeChatMode");
+        javaCallModel.setPayload(chatMode);
 
         callWebView(javaCallModel);
     }
@@ -1016,10 +1025,14 @@ public final class DevPilotChatToolWindowService {
     public void openMcpServerConfigurationFile() {
         VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(McpConfigurationHandler.INSTANCE.mcpConfigurationPath()));
         if (virtualFile != null) {
-            FileEditorManager.getInstance(project).openFile(virtualFile, true);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                FileEditorManager.getInstance(project).openFile(virtualFile, true);
+            });
         } else {
             LOG.warn("Error occurred while opening mcp_configuration.json");
-            Messages.showWarningDialog(project, DevPilotMessageBundle.get("devpilot.warning.mcpConfiguration.opening"), DevPilotMessageBundle.get("devpilot.warning"));
+            ApplicationManager.getApplication().invokeLater(() -> {
+                Messages.showWarningDialog(project, DevPilotMessageBundle.get("devpilot.warning.mcpConfiguration.opening"), DevPilotMessageBundle.get("devpilot.warning"));
+            });
         }
     }
 

@@ -28,6 +28,11 @@ public class McpServer {
 
     private String url;
 
+    private int timeout;
+
+    @JsonProperty("headers")
+    private Map<String, String> headers;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -90,5 +95,21 @@ public class McpServer {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 }
