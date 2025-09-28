@@ -7,7 +7,6 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.zhongan.devpilot.agents.BinaryManager;
-import com.zhongan.devpilot.embedding.background.EmbeddingBackground;
 import com.zhongan.devpilot.embedding.entity.DevPilotFileInfo;
 import com.zhongan.devpilot.embedding.entity.index.IndexFileDiff;
 import com.zhongan.devpilot.embedding.entity.index.IndexedFile;
@@ -71,7 +70,7 @@ public class LocalEmbeddingService {
     }
 
     public static void immediateStart(Project project) {
-        new EmbeddingBackground(project).queue();
+//        new EmbeddingBackground(project).queue();
     }
 
     public static void immediateStartCurrentProject() {

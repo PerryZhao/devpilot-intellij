@@ -6,9 +6,17 @@
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
     <name>DevPilot</name>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
 
     <change-notes><![CDATA[
+        <h1>Release 3.1.0</h1>
+        <h2>New Features</h2>
+        <ul>
+            <li>Added built-in read/write operations and command execution</li>
+            <li>Added reload functionality for DevPilot chat window</li>
+            <li>Added configurable timeout for MCP server</li>
+            <li>Added support for custom headers in MCP server configuration</li>
+        </ul>
         <h1>Release 3.0.2</h1>
         <h2>Bug Fixes</h2>
         <ul>
@@ -204,6 +212,7 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.zhongan.devpilot.DevPilotStartupActivity"/>
+        <postStartupActivity implementation="com.zhongan.devpilot.DevPilotApplicationStartupActivity"/>
 
         <applicationConfigurable id="settings.devpilot" parentId="tools" displayName="DevPilot"
                                  instance="com.zhongan.devpilot.settings.DevPilotSettingsConfigurable"/>
@@ -278,9 +287,6 @@
 
     <applicationListeners>
         <listener class="com.zhongan.devpilot.listener.ThemeChangeListener" topic="com.intellij.ide.ui.LafManagerListener"/>
-        <listener class="com.zhongan.devpilot.listener.MultiProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener class="com.zhongan.devpilot.listener.McpConfigurationFileChangeListener" topic="com.intellij.openapi.project.ProjectManagerListener"/>
-
+        <listener class="com.zhongan.devpilot.listener.MultiProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>

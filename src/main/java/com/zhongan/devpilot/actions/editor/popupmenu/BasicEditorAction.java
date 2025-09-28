@@ -1,5 +1,6 @@
 package com.zhongan.devpilot.actions.editor.popupmenu;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -23,6 +24,11 @@ public abstract class BasicEditorAction extends AnAction {
             @Nullable Icon icon) {
         super(text, description, icon);
         PopupMenuEditorActionGroupUtil.registerOrReplaceAction(this);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     protected abstract void actionPerformed(Project project, Editor editor, String selectedText, PsiElement psiElement, CodeReferenceModel codeReferenceModel, int mode);

@@ -109,6 +109,16 @@ public class DevPilotChatToolWindow {
         this.jbCefBrowser = browser;
     }
 
+    public void reload() {
+        if (this.jbCefBrowser != null) {
+            this.jbCefBrowser.dispose();
+        }
+        this.jbCefBrowser = null;
+
+        load();
+        historyRendered.set(false);
+    }
+
     private JBCefJSQuery.Response handleChatAction(DevPilotChatToolWindowService service, String commandType, Object payload) {
         var messageModel = JsonUtils.fromJson(JsonUtils.toJson(payload), MessageModel.class);
         if (messageModel == null) {

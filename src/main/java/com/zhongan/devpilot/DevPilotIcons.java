@@ -43,4 +43,6 @@ public class DevPilotIcons {
     public static final Icon USER_PROFILE = IconLoader.getIcon("/icons/user_profile.svg", DevPilotIcons.class);
 
     public static final Icon MANUAL_INDEX = IconLoader.getIcon("/icons/index.svg", DevPilotIcons.class);
+
+    public static final Icon TERMINAL_CLI = IconLoader.getIcon("icons/claude_code_cli.svg", DevPilotIcons.class);
 }

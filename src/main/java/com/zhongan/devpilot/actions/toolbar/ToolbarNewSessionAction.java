@@ -1,6 +1,7 @@
 package com.zhongan.devpilot.actions.toolbar;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -18,6 +19,11 @@ public class ToolbarNewSessionAction extends AnAction {
         super(DevPilotMessageBundle.get("devpilot.toolbarNewSessionAction.text"),
                 DevPilotMessageBundle.get("devpilot.toolbarNewSessionAction.text"),
                 AllIcons.General.Add);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

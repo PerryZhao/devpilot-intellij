@@ -74,7 +74,7 @@ public class DevPilotErrorReporter extends ErrorReportSubmitter {
     }
 
     @Override
-    public boolean submit(IdeaLoggingEvent @NotNull [] events, @Nullable String additionalInfo, @NotNull Component parentComponent, @NotNull Consumer<? super SubmittedReportInfo> consumer) {
+    public boolean submit(@NotNull IdeaLoggingEvent[] events, @Nullable String additionalInfo, @NotNull Component parentComponent, @NotNull Consumer<? super SubmittedReportInfo> consumer) {
         for (IdeaLoggingEvent event : events) {
             if (!shouldHandleError(event)) {
                 consumer.consume(new SubmittedReportInfo(SubmittedReportInfo.SubmissionStatus.DUPLICATE));

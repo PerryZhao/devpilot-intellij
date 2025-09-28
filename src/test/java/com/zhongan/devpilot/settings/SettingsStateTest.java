@@ -1,15 +1,19 @@
 package com.zhongan.devpilot.settings;
 
+import com.intellij.testFramework.ServiceContainerUtil;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import com.zhongan.devpilot.enums.EditorActionEnum;
 import com.zhongan.devpilot.enums.ModelServiceEnum;
-import com.zhongan.devpilot.settings.actionconfiguration.EditorActionConfigurationState;
 import com.zhongan.devpilot.settings.state.CodeLlamaSettingsState;
 import com.zhongan.devpilot.settings.state.DevPilotLlmSettingsState;
 import com.zhongan.devpilot.settings.state.OpenAISettingsState;
 
+import static com.intellij.openapi.application.ApplicationManager.getApplication;
+
 public class SettingsStateTest extends BasePlatformTestCase {
     public void testOpenAISettings() {
+        OpenAISettingsState mockSettings = new OpenAISettingsState();
+        ServiceContainerUtil.replaceService(getApplication(), OpenAISettingsState.class, mockSettings, getTestRootDisposable());
+
         var settings = OpenAISettingsState.getInstance();
         settings.setModelHost("https://test1.devpilot.com");
         settings.setPrivateKey("privateKey");

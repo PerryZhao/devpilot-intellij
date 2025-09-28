@@ -1,6 +1,7 @@
 package com.zhongan.devpilot.actions.editor.popupmenu;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -18,6 +19,11 @@ public class ReferenceCodeAction extends AnAction {
     public ReferenceCodeAction() {
         super(DevPilotMessageBundle.get("devpilot.action.reference.chat"), DevPilotMessageBundle.get("devpilot.action.reference.chat"), AllIcons.Actions.Find);
         PopupMenuEditorActionGroupUtil.registerOrReplaceAction(this);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

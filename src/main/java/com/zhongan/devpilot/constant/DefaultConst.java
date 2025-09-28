@@ -75,6 +75,10 @@ public class DefaultConst {
 
     public static final String AUTH_INFO_BUILD_TEMPLATE = "authType=%s&token=%s&userId=%s&timestamp=%s";
 
+    public static final String RETRIEVE_CLI_AK = "/cli-ak";
+
+    public static final String CLAUDE_CODE_CLI_DIRECT_URL = "/devpilot/v1/external/direct/claudecode";
+
     public static final boolean AUTH_ON = true;
 
     public static final boolean TELEMETRY_ON = true;

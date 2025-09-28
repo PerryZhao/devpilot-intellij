@@ -1,6 +1,7 @@
 package com.zhongan.devpilot.actions.toolbar;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.wm.ToolWindow;
@@ -15,6 +16,11 @@ public class ToolbarHistorySessionAction extends AnAction {
         super(DevPilotMessageBundle.get("devpilot.toolbarHistorySessionAction.text"),
                 DevPilotMessageBundle.get("devpilot.toolbarHistorySessionAction.text"),
                 AllIcons.Vcs.History);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

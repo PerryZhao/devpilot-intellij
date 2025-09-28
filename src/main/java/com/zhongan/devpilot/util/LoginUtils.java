@@ -2,6 +2,7 @@ package com.zhongan.devpilot.util;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.project.ProjectManager;
+import com.zhongan.devpilot.cli.security.AccessKeyService;
 import com.zhongan.devpilot.constant.DefaultConst;
 import com.zhongan.devpilot.enums.LoginTypeEnum;
 import com.zhongan.devpilot.enums.ZaSsoEnum;
@@ -90,6 +91,7 @@ public class LoginUtils {
         }
 
         changeLoginStatus(false);
+        AccessKeyService.INSTANCE.clearCache();
     }
 
     public static String getUsername() {
