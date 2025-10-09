@@ -144,4 +144,8 @@ public class LoginUtils {
     public static boolean isAuthOn() {
         return AUTH_ON;
     }
+
+    public static boolean isLogonNonWXUser() {
+        return LoginUtils.isLogin() && !"wx".equals(LoginUtils.getLoginType());
+    }
 }

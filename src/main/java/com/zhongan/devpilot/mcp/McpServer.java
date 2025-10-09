@@ -33,6 +33,9 @@ public class McpServer {
     @JsonProperty("headers")
     private Map<String, String> headers;
 
+    @JsonProperty("reconnectionOptions")
+    private ReconnectionOptions reconnectionOptions;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -111,5 +114,60 @@ public class McpServer {
 
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public ReconnectionOptions getReconnectionOptions() {
+        return reconnectionOptions;
+    }
+
+    public void setReconnectionOptions(ReconnectionOptions reconnectionOptions) {
+        this.reconnectionOptions = reconnectionOptions;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ReconnectionOptions {
+        @JsonProperty("maxReconnectionDelay")
+        private String maxReconnectionDelay;
+
+        @JsonProperty("initialReconnectionDelay")
+        private String initialReconnectionDelay;
+
+        @JsonProperty("reconnectionDelayGrowFactor")
+        private String reconnectionDelayGrowFactor;
+
+        @JsonProperty("maxRetries")
+        private String maxRetries;
+
+        public String getMaxReconnectionDelay() {
+            return maxReconnectionDelay;
+        }
+
+        public void setMaxReconnectionDelay(String maxReconnectionDelay) {
+            this.maxReconnectionDelay = maxReconnectionDelay;
+        }
+
+        public String getInitialReconnectionDelay() {
+            return initialReconnectionDelay;
+        }
+
+        public void setInitialReconnectionDelay(String initialReconnectionDelay) {
+            this.initialReconnectionDelay = initialReconnectionDelay;
+        }
+
+        public String getReconnectionDelayGrowFactor() {
+            return reconnectionDelayGrowFactor;
+        }
+
+        public void setReconnectionDelayGrowFactor(String reconnectionDelayGrowFactor) {
+            this.reconnectionDelayGrowFactor = reconnectionDelayGrowFactor;
+        }
+
+        public String getMaxRetries() {
+            return maxRetries;
+        }
+
+        public void setMaxRetries(String maxRetries) {
+            this.maxRetries = maxRetries;
+        }
     }
 }

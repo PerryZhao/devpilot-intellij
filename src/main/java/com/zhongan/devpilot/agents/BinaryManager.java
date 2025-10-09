@@ -80,7 +80,7 @@ public class BinaryManager {
 
     private static final String LINUX_PLATFORM = "linux";
 
-    private static final String BUNDLED_VERSION = "3.1.0";
+    private static final String BUNDLED_VERSION = "3.2.0";
 
     static {
         COMPATIBLE_ARCH = String.format("%s_%s", getSystemArch(), getPlatformName());
@@ -101,13 +101,13 @@ public class BinaryManager {
 
     @Contract(pure = true)
     private BinaryManager() {
-        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(LINUX_PLATFORM), "50f8fb98550bd8ee9151de4987f44ace");
-        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(LINUX_PLATFORM), "9f35f7781ccca31205651a289234f668");
-        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(MAC_PLATFORM), "65940ef8942099ba8df88e6d651b9819");
-        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(MAC_PLATFORM), "6c1d5183a47c58250a5ac03b05b39383");
-        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(WINDOWS_PLATFORM), "c5503c402e793653ca4307f465a7ffde");
-        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(WINDOWS_PLATFORM), "fb3dc026a194fa3a6b589e9a6d52c3d6");
-        bundledMD5Cache.put("zip", "93eaec1319e7ab6e6b9acbb15097fc58");
+        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(LINUX_PLATFORM), "ca6d3e6833e06a2446e5c8d8beaea5bf");
+        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(LINUX_PLATFORM), "ad04352d107f4d509d0e316def81cb9e");
+        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(MAC_PLATFORM), "eec0118f9f380effb6f23666a125029e");
+        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(MAC_PLATFORM), "9ff6c7df5db07bfecc26cf0d771a63a6");
+        bundledMD5Cache.put(AARCH64.concat(ARCH_).concat(WINDOWS_PLATFORM), "2451e80e93dbb54a3d833e3e1fd55d9d");
+        bundledMD5Cache.put(X86_64.concat(ARCH_).concat(WINDOWS_PLATFORM), "4e97a1c384f8e1bfe5e91ca927d72075");
+        bundledMD5Cache.put("zip", "b45306c783b79c9b94e7f605aa5dd05b");
     }
 
     public boolean shouldStartAgent() {

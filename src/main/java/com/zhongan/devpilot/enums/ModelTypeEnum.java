@@ -4,7 +4,11 @@ public enum ModelTypeEnum {
     GPT3_5("GPT-3.5", "azure/gpt-3.5-turbo", "GPT-3.5"),
     ERNIE("Ernie", "baidu/ernie-bot-4", "Ernie Bot"),
     TYQW("TYQW", "ali/qwen-plus", "Qwen"),
-    SENSENOVA("sensenova", "sensenova/nova-ptc-xl-v1", "Sense Nova");
+    SENSENOVA("sensenova", "sensenova/nova-ptc-xl-v1", "Sense Nova"),
+    CLAUDE_SONNET_4("claude-sonnet-4", "claude-sonnet-4", "claude-sonnet-4"),
+    GPT_5("gpt-5", "gpt-5", "gpt-5"),
+    QWEN3_CODER_PLUS("qwen3-coder-plus", "qwen3-coder-plus", "qwen3-coder-plus"),
+    DEEKSEEK_V3("deepseek-v3", "deepseek-v3", "deepseek-v3");
 
     // model name
     private final String name;

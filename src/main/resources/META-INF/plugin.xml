@@ -6,9 +6,19 @@
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
     <name>DevPilot</name>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 
     <change-notes><![CDATA[
+        <h1>Release 3.2.0</h1>
+        <h2>New Features</h2>
+        <ul>
+            <li>Add ReconnectionOptions class to McpServer for WebSocket reconnection configuration</li>
+            <li>Add JvmExceptionOccurrenceFilter implementation</li>
+        </ul>
+        <h2>Bug Fixes</h2>
+        <ul>
+            <li>Fixed locale issue by changing Locale.CHINA to Locale.CHINESE</li>
+        </ul>
         <h1>Release 3.1.0</h1>
         <h2>New Features</h2>
         <ul>
@@ -242,6 +252,8 @@
                              id="previewEscape" order="before hide-hints"/>
         <statusBarWidgetFactory id="com.zhongan.devpilot.status.widget" implementation="com.zhongan.devpilot.statusBar.DevPilotStatusBarWidgetFactory"/>
         <errorHandler implementation="com.zhongan.devpilot.exception.DevPilotErrorReporter" />
+        <!-- 注册异常调试器过滤器，用于在异常信息旁添加DevPilot图标 -->
+        <jvm.exceptionFilter implementation="com.zhongan.devpilot.exception.DevPilotDebuggerFilter"/>
     </extensions>
 
     <resource-bundle>messages.devpilot</resource-bundle>
@@ -254,6 +266,14 @@
                     text="DevPilot" description="Basic actions of DevPilot">
             </group>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </group>
+
+        <!-- 控制台上下文菜单动作组 -->
+        <group id="DevPilotConsoleActions" icon="com.zhongan.devpilot.DevPilotIcons.SYSTEM_ICON" popup="true" text="DevPilot" description="DevPilot Console Actions">
+            <action id="com.zhongan.devpilot.actions.console.ConsoleExplainCodeAction"
+                    class="com.zhongan.devpilot.actions.console.ConsoleExplainCodeAction">
+            </action>
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="first"/>
         </group>
 
         <action class="com.zhongan.devpilot.completions.inline.AcceptDevPilotInlineCompletionAction"

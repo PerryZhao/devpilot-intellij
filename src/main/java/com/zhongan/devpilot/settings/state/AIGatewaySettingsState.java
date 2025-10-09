@@ -8,6 +8,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.zhongan.devpilot.enums.ModelTypeEnum;
 import com.zhongan.devpilot.enums.ZaSsoEnum;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,6 +37,8 @@ public class AIGatewaySettingsState implements PersistentStateComponent<AIGatewa
     private boolean autoAuthentication = true;
 
     private boolean syncMcpServerConfig = true;
+
+    private List<String> preferenceModels = List.of(ModelTypeEnum.CLAUDE_SONNET_4.getName(), ModelTypeEnum.GPT_5.getName(), ModelTypeEnum.QWEN3_CODER_PLUS.getName(), ModelTypeEnum.DEEKSEEK_V3.getName());
 
     public static AIGatewaySettingsState getInstance() {
         return ApplicationManager.getApplication().getService(AIGatewaySettingsState.class);
@@ -119,6 +122,14 @@ public class AIGatewaySettingsState implements PersistentStateComponent<AIGatewa
 
     public void setSyncMcpServerConfig(boolean syncMcpServerConfig) {
         this.syncMcpServerConfig = syncMcpServerConfig;
+    }
+
+    public List<String> getPreferenceModels() {
+        return preferenceModels;
+    }
+
+    public void setPreferenceModels(List<String> preferenceModels) {
+        this.preferenceModels = preferenceModels;
     }
 
     @Override

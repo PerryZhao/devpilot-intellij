@@ -25,7 +25,7 @@ public class DevPilotMessageBundle extends DynamicBundle {
 
     static {
         bundleEn = ResourceBundle.getBundle(pathToBundle, Locale.ENGLISH);
-        bundleCN = ResourceBundle.getBundle(pathToBundle, Locale.CHINA);
+        bundleCN = ResourceBundle.getBundle(pathToBundle, Locale.CHINESE);
     }
 
     public static String get(@NotNull @PropertyKey(resourceBundle = "messages.devpilot") String key) {

@@ -1,13 +1,17 @@
 package com.zhongan.devpilot.settings;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.NlsContexts;
 import com.zhongan.devpilot.actions.editor.popupmenu.PopupMenuEditorActionGroupUtil;
 import com.zhongan.devpilot.agents.AgentsRunner;
 import com.zhongan.devpilot.agents.BinaryManager;
+import com.zhongan.devpilot.integrations.llms.aigateway.AIGatewayServiceProvider;
 import com.zhongan.devpilot.settings.state.AIGatewaySettingsState;
 import com.zhongan.devpilot.settings.state.AvailabilityCheck;
 import com.zhongan.devpilot.settings.state.ChatShortcutSettingState;
@@ -19,8 +23,10 @@ import com.zhongan.devpilot.settings.state.PersonalAdvancedSettingsState;
 import com.zhongan.devpilot.util.ConfigChangeUtils;
 import com.zhongan.devpilot.util.ConfigurableUtils;
 import com.zhongan.devpilot.util.DevPilotMessageBundle;
+import com.zhongan.devpilot.util.LoginUtils;
 
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -60,13 +66,16 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
         var completionEnable = CompletionSettingsState.getInstance().getEnable();
         Boolean enable = AvailabilityCheck.getInstance().getEnable();
         Boolean localRagEnabled = LocalRagSettingsState.getInstance().getEnable();
+        Boolean exceptionAssistantEnabled = personalAdvancedSettings.isExceptionAssistantEnabled();
 
-        // Check CLI settings if CLI is available
-        var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+        // Check CLI settings and preference models
         boolean cliSettingsModified = false;
+        boolean preferenceModelsModified = false;
         if (settingsComponent.isCliAvailable()) {
+            var aiGatewaySettings = AIGatewaySettingsState.getInstance();
             cliSettingsModified = settingsComponent.getAutoAuthentication() != aiGatewaySettings.isAutoAuthentication()
                     || settingsComponent.getSyncMcpServerConfig() != aiGatewaySettings.isSyncMcpServerConfig();
+            preferenceModelsModified = !settingsComponent.getPreferenceModels().equals(aiGatewaySettings.getPreferenceModels());
         }
 
         return !settingsComponent.getFullName().equals(settings.getFullName())
@@ -76,8 +85,10 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
                 || !settingsComponent.getCompletionEnabled() == (completionEnable)
                 || !settingsComponent.getStatusCheckEnabled() == (enable)
                 || !settingsComponent.getLocalRagEnabled() == (localRagEnabled)
+                || !settingsComponent.getExceptionAssistantEnabled() == (exceptionAssistantEnabled)
                 || !settingsComponent.getLocalStoragePath().equals(personalAdvancedSettings.getLocalStorage())
-                || cliSettingsModified;
+                || cliSettingsModified
+                || preferenceModelsModified;
     }
 
     private String verifyLocalStorage(String path) {
@@ -154,19 +165,44 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
         AvailabilityCheck availabilityCheck = AvailabilityCheck.getInstance();
         availabilityCheck.setEnable(settingsComponent.getStatusCheckEnabled());
 
+        // 保存异常助手功能设置
+        personalAdvancedSettings.setExceptionAssistantEnabled(settingsComponent.getExceptionAssistantEnabled());
+
         LocalRagSettingsState localRagSettings = LocalRagSettingsState.getInstance();
         var pastEnable = localRagSettings.getEnable();
         localRagSettings.setEnable(settingsComponent.getLocalRagEnabled());
-        // if local rag was disabled and now enabled, start the embedding service for current project
-//        if (!pastEnable && localRagSettings.getEnable()) {
-//            LocalEmbeddingService.immediateStartCurrentProject();
-//        }
 
-        // Apply CLI settings if CLI is available
-        if (settingsComponent.isCliAvailable()) {
+        if (LoginUtils.isLogonNonWXUser()) {
             var aiGatewaySettings = AIGatewaySettingsState.getInstance();
             aiGatewaySettings.setAutoAuthentication(settingsComponent.getAutoAuthentication());
             aiGatewaySettings.setSyncMcpServerConfig(settingsComponent.getSyncMcpServerConfig());
+
+            var currentPreferenceModels = aiGatewaySettings.getPreferenceModels();
+            var newPreferenceModels = settingsComponent.getPreferenceModels();
+            customizedUserPreferenceModels(aiGatewaySettings, currentPreferenceModels, newPreferenceModels);
+        }
+    }
+
+    private void customizedUserPreferenceModels(AIGatewaySettingsState aiGatewaySettings, List<String> currentPreferenceModels, List<String> newPreferenceModels) {
+        if (!newPreferenceModels.equals(currentPreferenceModels)) {
+            aiGatewaySettings.setPreferenceModels(newPreferenceModels);
+            try {
+                Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+                if (openProjects.length > 0) {
+                    var llmProvider = openProjects[0].getService(AIGatewayServiceProvider.class);
+                    if (llmProvider != null) {
+                        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                            try {
+                                llmProvider.customizedUserPreferenceModels(newPreferenceModels);
+                            } catch (Exception e) {
+                                LOG.warn("Failed to update preference models on server", e);
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to update preference models on server", e);
+            }
         }
     }
 
@@ -192,6 +228,9 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
         AvailabilityCheck availabilityCheck = AvailabilityCheck.getInstance();
         settingsComponent.setStatusCheckEnabled(availabilityCheck.getEnable());
 
+        // 重置异常助手功能设置
+        settingsComponent.setExceptionAssistantEnabled(personalAdvancedSettings.isExceptionAssistantEnabled());
+
         LocalRagSettingsState localRagSettings = LocalRagSettingsState.getInstance();
         settingsComponent.setLocalRagRadioEnabled(localRagSettings.getEnable());
 
@@ -200,6 +239,8 @@ public class DevPilotSettingsConfigurable implements Configurable, Disposable {
             var aiGatewaySettings = AIGatewaySettingsState.getInstance();
             settingsComponent.setAutoAuthentication(aiGatewaySettings.isAutoAuthentication());
             settingsComponent.setSyncMcpServerConfig(aiGatewaySettings.isSyncMcpServerConfig());
+            // Reset preference models
+            settingsComponent.setPreferenceModels(aiGatewaySettings.getPreferenceModels());
         }
     }
 

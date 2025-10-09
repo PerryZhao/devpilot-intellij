@@ -710,6 +710,7 @@ public final class DevPilotChatToolWindowService {
     public void clearRequestSessionAndChangeChatMode(int chatMode) {
         clearRequestSession();
         sessionManager.getCurrentSession().setChatMode(chatMode);
+        changeChatMode(chatMode);
     }
 
     public void deleteMessage(String id) {

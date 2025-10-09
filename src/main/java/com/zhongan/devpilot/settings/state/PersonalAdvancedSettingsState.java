@@ -10,6 +10,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 public class PersonalAdvancedSettingsState implements PersistentStateComponent<PersonalAdvancedSettingsState> {
 
     private String localStorage;
+    
+    // 异常助手功能开关，默认启用
+    private boolean exceptionAssistantEnabled = true;
 
     public static PersonalAdvancedSettingsState getInstance() {
         return ApplicationManager.getApplication().getService(PersonalAdvancedSettingsState.class);
@@ -31,5 +34,21 @@ public class PersonalAdvancedSettingsState implements PersistentStateComponent<P
 
     public void setLocalStorage(String localStorage) {
         this.localStorage = localStorage;
+    }
+    
+    /**
+     * 获取异常助手功能是否启用
+     * @return 是否启用异常助手功能
+     */
+    public boolean isExceptionAssistantEnabled() {
+        return exceptionAssistantEnabled;
+    }
+    
+    /**
+     * 设置异常助手功能是否启用
+     * @param exceptionAssistantEnabled 是否启用异常助手功能
+     */
+    public void setExceptionAssistantEnabled(boolean exceptionAssistantEnabled) {
+        this.exceptionAssistantEnabled = exceptionAssistantEnabled;
     }
 }

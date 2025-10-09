@@ -61,6 +61,8 @@ public class DefaultConst {
 
     public static final String UPDATE_MCP_SERVER_PATH = "/mcpServer";
 
+    public static final String USER_MODEL_PREFERENCES = "/model/preferences";
+
     public static final String EMBEDDING_DELETE_PATH = "/deleteChunks";
 
     public static final String EMBEDDING_SEARCH_PATH = "/local-rag";

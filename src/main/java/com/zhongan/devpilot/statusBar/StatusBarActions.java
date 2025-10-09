@@ -8,6 +8,7 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.util.Consumer;
 import com.zhongan.devpilot.DevPilotIcons;
+import com.zhongan.devpilot.services.UsageQueryService;
 import com.zhongan.devpilot.settings.DevPilotSettingsConfigurable;
 import com.zhongan.devpilot.settings.state.ChatShortcutSettingState;
 import com.zhongan.devpilot.settings.state.CompletionSettingsState;
@@ -34,6 +35,9 @@ public class StatusBarActions {
         actions.add(createEditSettingsAction());
         actions.add(createChatShortcutSwitchAction());
         actions.add(createCompletionsAction());
+        if (LoginUtils.isLogonNonWXUser()) {
+            actions.add(createUsageQueryAction());
+        }
         return new DefaultActionGroup(actions);
     }
 
@@ -102,6 +106,15 @@ public class StatusBarActions {
                 account + userName,
                 ThemeUtils.isDarkTheme() ? DevPilotIcons.ACCOUNT_DARK : DevPilotIcons.ACCOUNT,
                 null, false);
+    }
+
+    private static DumbAwareAction createUsageQueryAction() {
+        return createActionWithIcon(
+                DevPilotMessageBundle.get("devpilot.usage.query"),
+                DevPilotIcons.USER_PROFILE,
+                event -> UsageQueryService.queryUsage(event.getProject()),
+                true
+        );
     }
 
     private static DumbAwareAction createActionWithIcon(String text, Icon icon,

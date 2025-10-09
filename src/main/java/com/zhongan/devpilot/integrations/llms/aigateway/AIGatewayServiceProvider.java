@@ -10,6 +10,7 @@ import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.Pair;
 import com.zhongan.devpilot.actions.notifications.DevPilotNotification;
 import com.zhongan.devpilot.agents.BinaryManager;
+import com.zhongan.devpilot.enums.ModelTypeEnum;
 import com.zhongan.devpilot.gui.toolwindows.chat.DevPilotChatToolWindowService;
 import com.zhongan.devpilot.integrations.llms.LlmProvider;
 import com.zhongan.devpilot.integrations.llms.entity.DevPilotChatCompletionRequest;
@@ -21,6 +22,7 @@ import com.zhongan.devpilot.integrations.llms.entity.DevPilotMessage;
 import com.zhongan.devpilot.integrations.llms.entity.DevPilotRagRequest;
 import com.zhongan.devpilot.integrations.llms.entity.DevPilotRagResponse;
 import com.zhongan.devpilot.integrations.llms.entity.DevPilotSuccessResponse;
+import com.zhongan.devpilot.integrations.llms.entity.ModelInfo;
 import com.zhongan.devpilot.session.model.ChatSession;
 import com.zhongan.devpilot.settings.state.AIGatewaySettingsState;
 import com.zhongan.devpilot.settings.state.LanguageSettingsState;
@@ -45,6 +47,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import okhttp3.Call;
@@ -60,6 +63,7 @@ import static com.zhongan.devpilot.constant.DefaultConst.DEEP_THINKING_PATH;
 import static com.zhongan.devpilot.constant.DefaultConst.REMOTE_AGENT_DEFAULT_HOST;
 import static com.zhongan.devpilot.constant.DefaultConst.REMOTE_RAG_DEFAULT_HOST;
 import static com.zhongan.devpilot.constant.DefaultConst.REMOTE_RAG_DEFAULT_PATH;
+import static com.zhongan.devpilot.constant.DefaultConst.USER_MODEL_PREFERENCES;
 
 @Service(Service.Level.PROJECT)
 public final class AIGatewayServiceProvider implements LlmProvider {
@@ -599,6 +603,134 @@ public final class AIGatewayServiceProvider implements LlmProvider {
             return DevPilotChatCompletionResponse.failed(objectMapper.readValue(result, DevPilotFailedResponse.class)
                     .getError()
                     .getMessage());
+        }
+    }
+
+    @Override
+    public List<String> availableModels() throws Exception {
+        var aiGatewaySettings = AIGatewaySettingsState.getInstance();
+        var currentPreferenceModels = aiGatewaySettings.getPreferenceModels();
+        List<String> result = List.of(ModelTypeEnum.CLAUDE_SONNET_4.getName(), ModelTypeEnum.GPT_5.getName(), ModelTypeEnum.QWEN3_CODER_PLUS.getName(), ModelTypeEnum.DEEKSEEK_V3.getName());
+        return CollectionUtils.isNotEmpty(currentPreferenceModels) ? currentPreferenceModels : result;
+    }
+
+    @Override
+    public void customizedUserPreferenceModels(List<String> userPreferenceModels) throws Exception {
+        if (!LoginUtils.isLogonNonWXUser()) {
+            return;
+        }
+
+        Response response = null;
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("models", userPreferenceModels);
+            String requestBody = JsonUtils.toJson(body);
+
+            Pair<Integer, Long> portPId = BinaryManager.INSTANCE.retrieveAlivePort();
+            if (null != portPId) {
+                String url = REMOTE_RAG_DEFAULT_HOST + portPId.first + USER_MODEL_PREFERENCES;
+                var request = new Request.Builder()
+                        .url(url)
+                        .header("User-Agent", UserAgentUtils.buildUserAgent())
+                        .header("Auth-Type", LoginUtils.getLoginType())
+                        .header("Content-Type", "application/json")
+                        .post(RequestBody.create(requestBody, MediaType.parse("application/json")))
+                        .build();
+
+                Call call = OkhttpUtils.getClient().newCall(request);
+                response = call.execute();
+                if (!response.isSuccessful()) {
+                    throw new Exception("Failed to update preference models: " + response.code());
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to update preference models", e);
+            throw e;
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
+        }
+    }
+
+    public List<String> fetchUserPreferenceModels() throws Exception {
+        if (!LoginUtils.isLogonNonWXUser()) {
+            return new ArrayList<>();
+        }
+
+        Response response = null;
+        try {
+            Pair<Integer, Long> portPId = BinaryManager.INSTANCE.retrieveAlivePort();
+            if (null != portPId) {
+                String url = REMOTE_RAG_DEFAULT_HOST + portPId.first + USER_MODEL_PREFERENCES;
+                var request = new Request.Builder()
+                        .url(url)
+                        .header("User-Agent", UserAgentUtils.buildUserAgent())
+                        .header("Auth-Type", LoginUtils.getLoginType())
+                        .header("Content-Type", "application/json")
+                        .get()
+                        .build();
+
+                Call call = OkhttpUtils.getClient().newCall(request);
+                response = call.execute();
+
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    if (StringUtils.isNotEmpty(responseBody)) {
+                        return JsonUtils.fromJsonList(responseBody, String.class);
+                    }
+                }
+            }
+            LOG.warn("Failed to fetch preference models returned default user preference models");
+            return List.of(ModelTypeEnum.CLAUDE_SONNET_4.getName(), ModelTypeEnum.GPT_5.getName(), ModelTypeEnum.QWEN3_CODER_PLUS.getName(), ModelTypeEnum.DEEKSEEK_V3.getName());
+        } catch (Exception e) {
+            LOG.warn("Failed to fetch preference models", e);
+            throw e;
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
+        }
+    }
+
+    public Map<String, Map<String, ModelInfo>> fetchModelAutoPreference() throws Exception {
+        if (!LoginUtils.isLogonNonWXUser()) {
+            return new HashMap<>();
+        }
+
+        Response response = null;
+        try {
+            Pair<Integer, Long> portPId = BinaryManager.INSTANCE.retrieveAlivePort();
+            if (null != portPId) {
+                String url = REMOTE_RAG_DEFAULT_HOST + portPId.first + "/model/auto-preference";
+                var request = new Request.Builder()
+                        .url(url)
+                        .header("User-Agent", UserAgentUtils.buildUserAgent())
+                        .header("Auth-Type", LoginUtils.getLoginType())
+                        .header("Content-Type", "application/json")
+                        .get()
+                        .build();
+
+                Call call = OkhttpUtils.getClient().newCall(request);
+                response = call.execute();
+
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    if (StringUtils.isNotEmpty(responseBody)) {
+                        return objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {
+                        });
+                    }
+                }
+            }
+            LOG.warn("Failed to fetch model auto preference");
+            return new HashMap<>();
+        } catch (Exception e) {
+            LOG.warn("Failed to fetch model auto preference", e);
+            throw e;
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
         }
     }
 }

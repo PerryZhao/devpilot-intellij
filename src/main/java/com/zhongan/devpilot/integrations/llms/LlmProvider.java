@@ -432,4 +432,12 @@ public interface LlmProvider {
 
     }
 
+    default List<String> availableModels() throws Exception {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    default void customizedUserPreferenceModels(List<String> userPreferenceModels) throws Exception {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
 }
